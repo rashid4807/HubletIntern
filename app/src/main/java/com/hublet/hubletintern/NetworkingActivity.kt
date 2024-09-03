@@ -1,5 +1,6 @@
 package com.hublet.hubletintern
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -8,67 +9,36 @@ import android.os.Looper
 import android.widget.ImageView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.hublet.hubletintern.adapter.PersonAdapter
+import com.hublet.hubletintern.model.Person
 import com.squareup.picasso.Picasso
 import java.util.concurrent.Executors
 
 class NetworkingActivity : AppCompatActivity() {
 
-    private var imvPerson: ImageView? = null
+    private var rclvPersonList: RecyclerView? = null
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_networking)
 
-        imvPerson = findViewById(R.id.imv_person)
+        rclvPersonList = findViewById(R.id.rclv_person_list)
+        rclvPersonList?.layoutManager = GridLayoutManager(this, 2)
 
-        imvPerson?.setOnClickListener {
-//            setImageFromUrl()
-            setImageWithPicasso()
+        rclvPersonList?.adapter = PersonAdapter(getPersonList())
+
+    }
+
+    private fun getPersonList() : ArrayList<Person>{
+        val personList = ArrayList<Person>()
+        for (item in 0..10){
+            val person = Person("Marzia $item", "marzia.$item@gmail.com", "https://i.ibb.co/qg8Q5jL/image.jpg")
+            personList.add(person)
         }
-
-    }
-
-    private fun setImageWithPicasso() {
-        Picasso.get().load(URL_PICASSO).into(imvPerson)
-    }
-
-    private fun setImageFromUrl() {
-        // Declaring executor to parse the URL
-        val executor = Executors.newSingleThreadExecutor()
-
-        // Once the executor parses the URL
-        // and receives the image, handler will load it
-        // in the ImageView
-        val handler = Handler(Looper.getMainLooper())
-
-        // Initializing the image
-        var image: Bitmap? = null
-
-        // Only for Background process (can take time depending on the Internet speed)
-        executor.execute {
-
-            // Tries to get the image and post it in the ImageView
-            // with the help of Handler
-            try {
-                val `in` = java.net.URL(imageURL).openStream()
-                image = BitmapFactory.decodeStream(`in`)
-
-                // Only for making changes in UI
-                handler.post {
-                    imvPerson?.setImageBitmap(image)
-                }
-            }
-
-            // If the URL doesnot point to
-            // image or any other kind of failure
-            catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    companion object {
-        const val imageURL = "https://media.geeksforgeeks.org/wp-content/cdn-uploads/gfg_200x200-min.png"
-        const val URL_PICASSO = "https://avatars.githubusercontent.com/u/1?v=4"
+        return personList
     }
 }
